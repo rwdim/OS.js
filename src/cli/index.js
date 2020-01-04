@@ -27,17 +27,24 @@
  * @author  Anders Evenrud <andersevenrud@gmail.com>
  * @licence Simplified BSD License
  */
-const path = require('path');
+ // In the top of the file load the library
+ const dbAuth = require('@osjs/database-auth');
 
-//
-// This is where you can place your custom CLI tasks
-// https://manual.os-js.org/v3/guide/cli/
-// https://manual.os-js.org/v3/resource/official/
-//
+ // Create a database authentication instance
+ const dbCli = dbAuth.cli({
+   // Change this to match your local database server
+   type: 'postgres',
+   host: 'localhost',
+   username: 'test',
+   password: 'test',
+   database: 'osjs',
 
-module.exports = {
-  discover: [
-    path.resolve(__dirname, '../packages') // OS.js/src/packages
-  ],
-  tasks: []
-};
+
+   // See TypeORM documentation for more settings
+ });
+
+ // Then finally add 'dbCli' to the tasks array
+ module.exports = {
+   discover: [],
+   tasks: [dbCli]
+ };

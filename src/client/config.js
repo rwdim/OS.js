@@ -35,7 +35,9 @@
 //
 
 module.exports = {
-  auth: {
+  public: '/',
+
+  xauth: {
     login: {
       username: 'demo',
       password: 'demo'

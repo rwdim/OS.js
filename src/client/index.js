@@ -48,10 +48,21 @@ import {
   AuthServiceProvider
 } from '@osjs/client';
 
+import Vue from 'vue';
+import App from './App.vue';
 import {PanelServiceProvider} from '@osjs/panels';
 import {GUIServiceProvider} from '@osjs/gui';
 import {DialogServiceProvider} from '@osjs/dialogs';
 import * as config from './config.js';
+
+proc.createWindow({})
+  .render(el => {
+    new Vue({
+      el,
+      render: h => h(App)
+    });
+  });
+
 
 const init = () => {
   const osjs = new Core(config, {});

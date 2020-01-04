@@ -1,21 +1,16 @@
 const path = require('path');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
+const {VueLoaderPlugin} = require('vue-loader');
+
 const mode = process.env.NODE_ENV || 'development';
 const minimize = mode === 'production';
-const webpack = require('webpack');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-const {DefinePlugin} = webpack;
-const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
-const npm = require('./package.json');
 const plugins = [];
 
 if (mode === 'production') {
   plugins.push(new OptimizeCSSAssetsPlugin({
     cssProcessorOptions: {
-      discardComments: true,
-      map: {
-        inline: false
-      }
+      discardComments: true
     },
   }));
 }
@@ -23,58 +18,31 @@ if (mode === 'production') {
 module.exports = {
   mode,
   devtool: 'source-map',
-  entry: {
-    osjs: [
-      path.resolve(__dirname, 'src/client/index.js'),
-      path.resolve(__dirname, 'src/client/index.scss')
-    ]
-  },
-  performance: {
-    maxEntrypointSize: 500 * 1024,
-    maxAssetSize: 500 * 1024
+  entry: path.resolve(__dirname, 'src', 'client', 'index.js'),
+  externals: {
+    osjs: 'OSjs'
   },
   optimization: {
     minimize,
-    splitChunks: {
-      chunks: 'all'
-    }
   },
   plugins: [
-    new DefinePlugin({
-      OSJS_VERSION: npm.version
-    }),
-    new HtmlWebpackPlugin({
-      template: path.resolve(__dirname, 'src/client/index.ejs'),
-      favicon: path.resolve(__dirname, 'src/client/favicon.png'),
-      title: 'OS.js'
-    }),
+    new VueLoaderPlugin(),
     new MiniCssExtractPlugin({
-      filename: '[name].css'
+      filename: '[name].css',
+      chunkFilename: '[id].css'
     }),
     ...plugins
   ],
+  resolve: {
+    alias: {
+      'vue$': 'vue/dist/vue.esm.js'
+    }
+  },
   module: {
     rules: [
       {
-        test: /\.(svg|png|jpe?g|gif|webp)$/,
-        use: [
-          {
-            loader: 'file-loader'
-          }
-        ]
-      },
-      {
-        test: /\.(eot|svg|ttf|woff|woff2)$/,
-        include: /typeface/,
-        use: {
-          loader: 'file-loader',
-          options: {
-            name: 'fonts/[name].[ext]'
-          }
-        }
-      },
-      {
         test: /\.(sa|sc|c)ss$/,
+        exclude: /(node_modules|bower_components)/,
         use: [
           MiniCssExtractPlugin.loader,
           {
@@ -94,17 +62,14 @@ module.exports = {
       },
       {
         test: /\.js$/,
-        exclude: /node_modules/,
+        exclude: /(node_modules|bower_components)/,
         use: {
           loader: 'babel-loader'
         }
       },
       {
-        test: /\.js$/,
-        enforce: 'pre',
-        use: {
-          loader: 'source-map-loader'
-        }
+        test: /\.vue$/,
+        loader: 'vue-loader',
       }
     ]
   }

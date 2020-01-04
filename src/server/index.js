@@ -49,6 +49,27 @@ const {
 
 const config = require('./config.js');
 const osjs = new Core(config, {});
+// In the top of the file load the library
+const dbAuth = require('@osjs/database-auth');
+
+// Locate this line in the file and add the following:
+osjs.register(AuthServiceProvider, {
+  args: {
+    adapter: dbAuth.adapter,
+    config: {
+      connection: {
+        // Change this to match your local database server
+        type: 'postgres',
+        host: 'localhost',
+        username: 'test',
+        password: 'test',
+        database: 'osjs',
+
+        // See TypeORM documentation for more settings
+      }
+    }
+  }
+});
 
 osjs.register(CoreServiceProvider, {before: true});
 osjs.register(PackageServiceProvider);
@@ -61,6 +82,8 @@ process.on('SIGINT', () => osjs.destroy());
 process.on('exit', () => osjs.destroy());
 process.on('uncaughtException', e => console.error(e));
 process.on('unhandledRejection', e => console.error(e));
+
+
 
 osjs.boot()
   .catch(err => {
